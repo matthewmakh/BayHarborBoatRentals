@@ -17,10 +17,10 @@ body {
 
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center rounded-full px-5 py-3 font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2;
+    @apply inline-flex items-center justify-center rounded-full px-5 py-3 font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
   }
   .btn-primary {
-    @apply btn bg-navy-600 text-white hover:bg-navy-700 focus-visible:outline-navy-600;
+    @apply btn bg-navy-600 text-white hover:bg-navy-700 focus-visible:outline-navy-600 disabled:hover:bg-navy-600;
   }
   .btn-secondary {
     @apply btn bg-white text-navy-700 border border-navy-200 hover:bg-navy-50 focus-visible:outline-navy-600;

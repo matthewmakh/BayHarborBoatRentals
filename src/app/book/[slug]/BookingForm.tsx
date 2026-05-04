@@ -94,7 +94,8 @@ export function BookingForm({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!slot) {
-      setError("Please pick a start time.");
+      setError("Please pick a date and start time first.");
+      document.getElementById("step-time")?.scrollIntoView({ behavior: "smooth", block: "start" });
       return;
     }
     setSubmitting(true);
@@ -160,7 +161,7 @@ export function BookingForm({
         </div>
       </div>
 
-      <div className="card p-6">
+      <div id="step-time" className="card p-6 scroll-mt-24">
         <h2 className="text-lg font-semibold text-navy-800">2. Pick a date &amp; start time</h2>
         <p className="mt-1 text-sm text-navy-600">All times shown in Eastern Time (ET).</p>
 
@@ -185,9 +186,20 @@ export function BookingForm({
             ) : slotsError ? (
               <p className="text-sm text-rose-700">{slotsError}</p>
             ) : slots.length === 0 ? (
-              <p className="text-sm text-navy-600">
-                No availability for this duration on {date}. Try a different date or duration.
-              </p>
+              <div className="text-sm text-navy-700 space-y-2">
+                <p>No openings for a {TIERS.find((t) => t.value === duration)!.label.toLowerCase()} rental on {date}.</p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = new Date(date + "T12:00:00Z");
+                    next.setUTCDate(next.getUTCDate() + 1);
+                    setDate(next.toISOString().slice(0, 10));
+                  }}
+                  className="rounded-lg bg-navy-50 border border-navy-200 px-3 py-1.5 text-navy-800 hover:bg-navy-100"
+                >
+                  Try tomorrow →
+                </button>
+              </div>
             ) : (
               <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-64 overflow-y-auto pr-1">
                 {slots.map((s) => {
@@ -249,7 +261,13 @@ export function BookingForm({
           <div className="rounded-lg bg-navy-50 px-3 py-2 col-span-2">
             <dt className="text-navy-500 uppercase tracking-wide text-xs">When</dt>
             <dd className="font-semibold text-navy-800">
-              {slot ? `${date} at ${formatTimeLabel(slot)} ET` : <span className="text-navy-400">Pick a time above</span>}
+              {slot ? (
+                `${date} at ${formatTimeLabel(slot)} ET`
+              ) : (
+                <a href="#step-time" className="text-navy-600 underline-offset-4 hover:underline">
+                  Pick a time above ↑
+                </a>
+              )}
             </dd>
           </div>
         </dl>
@@ -257,8 +275,13 @@ export function BookingForm({
           Final pricing is calculated server-side from current rates. The next step is the waiver, then Stripe deposit.
         </p>
         {error && <p className="mt-3 text-sm text-rose-700">{error}</p>}
-        <button type="submit" disabled={submitting || !slot} className="btn-primary mt-4">
-          {submitting ? "Submitting…" : "Continue to waiver"}
+        <button
+          type="submit"
+          disabled={submitting}
+          aria-disabled={!slot || undefined}
+          className="btn-primary mt-4"
+        >
+          {submitting ? "Submitting…" : slot ? "Continue to waiver" : "Pick a time to continue"}
         </button>
       </div>
     </form>
