@@ -11,3 +11,5 @@ build
 .vercel
 .turbo
 coverage
+tsconfig.tsbuildinfo
+*.tsbuildinfo
