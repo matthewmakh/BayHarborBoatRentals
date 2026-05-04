@@ -1,0 +1,174 @@
+// Bay Harbor Boat Rentals — Prisma schema
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+enum BoatStatus {
+  available
+  unavailable
+  maintenance
+}
+
+model Boat {
+  id                    String       @id @default(cuid())
+  slug                  String       @unique
+  name                  String
+  year                  Int
+  lengthFeet            Int
+  maxCapacity           Int
+  description           String       @db.Text
+  status                BoatStatus   @default(available)
+  // Prices stored in USD cents to avoid floating-point errors
+  price2hCents          Int
+  price4hCents          Int
+  price6hCents          Int
+  price8hCents          Int
+  // Optional per-boat deposit % override (0-100). Falls back to global.
+  depositPercentOverride Int?
+  sortOrder             Int          @default(0)
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+
+  photos                BoatPhoto[]
+  bookings              Booking[]
+}
+
+model BoatPhoto {
+  id        String   @id @default(cuid())
+  boatId    String
+  url       String
+  alt       String?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  boat      Boat     @relation(fields: [boatId], references: [id], onDelete: Cascade)
+
+  @@index([boatId])
+}
+
+enum BookingStatus {
+  pending_waiver
+  waiver_completed
+  pending_payment
+  deposit_paid
+  cancelled
+  completed
+}
+
+enum RentalDuration {
+  TWO_HOUR
+  FOUR_HOUR
+  SIX_HOUR
+  EIGHT_HOUR
+}
+
+model Booking {
+  id                String         @id @default(cuid())
+  boatId            String
+  fullName          String
+  email             String
+  phone             String
+  notes             String?        @db.Text
+  duration          RentalDuration
+  // Pricing snapshot (server-calculated, never trust client)
+  rentalPriceCents  Int
+  depositPercent    Int
+  depositCents      Int
+  currency          String         @default("usd")
+  status            BookingStatus  @default(pending_waiver)
+  calendlyEventUri  String?
+  calendlyInviteeUri String?
+  scheduledAt       DateTime?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  boat              Boat           @relation(fields: [boatId], references: [id])
+  waiver            WaiverSubmission?
+  payment           StripePayment?
+
+  @@index([boatId])
+  @@index([status])
+}
+
+model WaiverVersion {
+  id          String   @id @default(cuid())
+  version     Int      @unique
+  body        String   @db.Text
+  isActive    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  submissions WaiverSubmission[]
+}
+
+model WaiverSubmission {
+  id              String        @id @default(cuid())
+  bookingId       String        @unique
+  waiverVersionId String
+  fullLegalName   String
+  confirmed       Boolean
+  ipAddress       String?
+  userAgent       String?       @db.Text
+  boatId          String
+  duration        RentalDuration
+  signedAt        DateTime      @default(now())
+
+  booking         Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  waiverVersion   WaiverVersion @relation(fields: [waiverVersionId], references: [id])
+
+  @@index([waiverVersionId])
+  @@index([boatId])
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  authorName String
+  rating     Int      @default(5)
+  body       String   @db.Text
+  published  Boolean  @default(true)
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model SiteSetting {
+  key       String   @id
+  value     String   @db.Text
+  updatedAt DateTime @updatedAt
+}
+
+enum StripePaymentStatus {
+  created
+  processing
+  succeeded
+  failed
+  refunded
+}
+
+model StripePayment {
+  id                     String              @id @default(cuid())
+  bookingId              String              @unique
+  checkoutSessionId      String              @unique
+  paymentIntentId        String?
+  amountCents            Int
+  currency               String              @default("usd")
+  status                 StripePaymentStatus @default(created)
+  rawEvent               String?             @db.Text
+  createdAt              DateTime            @default(now())
+  updatedAt              DateTime            @updatedAt
+
+  booking                Booking             @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+}
