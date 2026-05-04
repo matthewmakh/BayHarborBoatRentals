@@ -10,7 +10,7 @@ export function getStripe(): Stripe {
       "STRIPE_SECRET_KEY is not set. See README for Stripe setup. Until then, deposit checkout is disabled."
     );
   }
-  cached = new Stripe(key, { apiVersion: "2024-10-28.acacia" });
+  cached = new Stripe(key, { apiVersion: "2025-02-24.acacia" });
   return cached;
 }
 

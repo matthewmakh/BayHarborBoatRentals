@@ -37,15 +37,24 @@ export const SETTING_DEFAULTS: Record<string, string> = {
 };
 
 export async function getAllSettings(): Promise<Record<string, string>> {
-  const rows = await prisma.siteSetting.findMany();
-  const result: Record<string, string> = { ...SETTING_DEFAULTS };
-  for (const r of rows) result[r.key] = r.value;
-  return result;
+  // Fall back to defaults if the DB is unreachable (e.g. during build-time prerender).
+  try {
+    const rows = await prisma.siteSetting.findMany();
+    const result: Record<string, string> = { ...SETTING_DEFAULTS };
+    for (const r of rows) result[r.key] = r.value;
+    return result;
+  } catch {
+    return { ...SETTING_DEFAULTS };
+  }
 }
 
 export async function getSetting(key: string): Promise<string> {
-  const row = await prisma.siteSetting.findUnique({ where: { key } });
-  return row?.value ?? SETTING_DEFAULTS[key] ?? "";
+  try {
+    const row = await prisma.siteSetting.findUnique({ where: { key } });
+    return row?.value ?? SETTING_DEFAULTS[key] ?? "";
+  } catch {
+    return SETTING_DEFAULTS[key] ?? "";
+  }
 }
 
 export async function setSetting(key: string, value: string): Promise<void> {
