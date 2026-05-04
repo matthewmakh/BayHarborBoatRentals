@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getClientIp } from "@/lib/clientIp";
-import { notifyWaiverCompleted } from "@/lib/notifications";
+import { notifyCustomerWaiverSigned, notifyWaiverCompleted } from "@/lib/notifications";
 
 const Schema = z.object({
   bookingId: z.string().min(1),
@@ -58,6 +58,7 @@ export async function POST(req: Request) {
   });
 
   notifyWaiverCompleted(booking, submission).catch(() => undefined);
+  notifyCustomerWaiverSigned(booking, submission).catch(() => undefined);
 
   return NextResponse.json({ ok: true });
 }

@@ -3,7 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { calcDepositCents, priceForDuration } from "@/lib/pricing";
 import { getInstantReservationsEnabled } from "@/lib/settings";
-import { notifyBookingSubmitted } from "@/lib/notifications";
+import { notifyBookingSubmitted, notifyCustomerBookingReceived } from "@/lib/notifications";
 import { isSlotAvailable } from "@/lib/availability";
 import { dateInBusinessTz } from "@/lib/timezone";
 
@@ -74,6 +74,7 @@ export async function POST(req: Request) {
   });
 
   notifyBookingSubmitted(booking).catch(() => undefined);
+  notifyCustomerBookingReceived(booking).catch(() => undefined);
 
   return NextResponse.json({ bookingId: booking.id });
 }

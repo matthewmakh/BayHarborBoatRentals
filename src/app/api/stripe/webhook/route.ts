@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { prisma } from "@/lib/prisma";
 import { getStripe } from "@/lib/stripe";
-import { notifyDepositPaid } from "@/lib/notifications";
+import { notifyCustomerBookingConfirmed, notifyDepositPaid } from "@/lib/notifications";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -100,5 +100,6 @@ async function handleSessionCompleted(session: Stripe.Checkout.Session, raw: str
       include: { boat: true },
     });
     notifyDepositPaid(updatedBooking, updatedPayment).catch(() => undefined);
+    notifyCustomerBookingConfirmed(updatedBooking, updatedPayment).catch(() => undefined);
   }
 }
