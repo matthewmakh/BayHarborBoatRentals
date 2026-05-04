@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { PublicShell } from "@/components/PublicShell";
 import { prisma } from "@/lib/prisma";
 import { getDepositPercent, getInstantReservationsEnabled, getSetting, SETTING_KEYS } from "@/lib/settings";
+import { todayInBusinessTz } from "@/lib/timezone";
 import { BookingForm } from "./BookingForm";
 
 export const dynamic = "force-dynamic";
@@ -12,14 +13,13 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 export default async function BookPage({ params }: { params: { slug: string } }) {
-  const [boat, depositPercent, instant, calendlyUrl, phone] = await Promise.all([
+  const [boat, depositPercent, instant, phone] = await Promise.all([
     prisma.boat.findUnique({
       where: { slug: params.slug },
       include: { photos: { orderBy: { sortOrder: "asc" } } },
     }),
     getDepositPercent(),
     getInstantReservationsEnabled(),
-    getSetting(SETTING_KEYS.calendlyUrl),
     getSetting(SETTING_KEYS.phone),
   ]);
   if (!boat) notFound();
@@ -51,7 +51,7 @@ export default async function BookPage({ params }: { params: { slug: string } })
       <section className="container-x py-10 max-w-3xl">
         <h1 className="text-3xl sm:text-4xl font-serif text-navy-800">Reserve {boat.name}</h1>
         <p className="mt-2 text-navy-700">
-          Pick a duration and time slot, sign the waiver, and pay your {pct}% deposit to lock it in.
+          Pick a duration, date, and start time, then sign the waiver and pay your {pct}% deposit to lock it in.
         </p>
         <BookingForm
           boat={{
@@ -65,7 +65,7 @@ export default async function BookPage({ params }: { params: { slug: string } })
             photo: boat.photos[0]?.url ?? null,
           }}
           depositPercent={pct}
-          calendlyUrl={calendlyUrl}
+          todayInTz={todayInBusinessTz()}
         />
       </section>
     </PublicShell>

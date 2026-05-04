@@ -2,10 +2,11 @@
 
 Production-ready full-stack site for **Bay Harbor Boat Rentals** (Bay Harbor Islands, FL).
 
-- **Stack:** Next.js 14 (App Router) · TypeScript · TailwindCSS · PostgreSQL · Prisma · Stripe Checkout · Calendly · Railway
+- **Stack:** Next.js 14 (App Router) · TypeScript · TailwindCSS · PostgreSQL · Prisma · Stripe Checkout · Railway
 - **Public site:** home, boats listing, boat detail, booking flow, waiver, reviews, contact
-- **Admin portal at `/admin`:** manage boats, photos, prices, deposits, bookings, waivers, reviews, settings, social links, Calendly URL
-- **Booking flow:** customer picks boat → duration → time slot via Calendly → submits details → signs waiver → pays Stripe deposit (server-calculated) → webhook confirms
+- **Admin portal at `/admin`:** manage boats, photos, prices, deposits, blackout dates, bookings, waivers, reviews, settings, operating hours, social links
+- **Booking flow:** customer picks boat → duration → date → start time (computed server-side from real availability) → submits details → signs waiver → pays Stripe deposit (server-calculated) → webhook confirms
+- **Built-in scheduler:** no third-party calendar service. The app computes available time slots per boat × duration × date, blocking out conflicts with existing bookings and admin-set blackout windows. Operating hours, slot increment, and buffer time are all editable in `/admin/settings`.
 
 > Boat data is **never** hardcoded into the public pages — every boat, photo, price, and setting is editable from the admin portal.
 
@@ -53,7 +54,6 @@ All variables are documented in `.env.example`. Required for production:
 | `STRIPE_SECRET_KEY` | Stripe secret key (sk_…) |
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe publishable key (pk_…) |
 | `STRIPE_WEBHOOK_SECRET` | Stripe CLI / dashboard webhook secret (whsec_…) |
-| `CALENDLY_URL` | Calendly event URL (admin can override in Settings) |
 | `NOTIFICATION_EMAIL` | Where booking/waiver/payment notifications go (default `daniel@bayharborboatrentals.com`) |
 | `EMAIL_PROVIDER` | `resend` \| `sendgrid` \| `smtp` \| `console` (no-op log for dev) |
 | `EMAIL_FROM` | "Bay Harbor Boat Rentals \<noreply@…\>" |
@@ -68,10 +68,7 @@ All variables are documented in `.env.example`. Required for production:
 1. **Create a new Railway project** and add a **PostgreSQL** plugin. Copy the auto-generated `DATABASE_URL` into your app's variables.
 2. **Deploy this repo** as a Node service. Railway auto-detects Next.js.
 3. Set the variables from the table above. Generate `SESSION_SECRET` with `openssl rand -base64 48`.
-4. The build script runs migrations automatically:
-   ```
-   prisma generate && prisma migrate deploy && next build
-   ```
+4. The build script generates the Prisma client; the start command then runs `prisma db push` (idempotent) before booting Next.
 5. After the first deploy, run the seed once from Railway's shell:
    ```bash
    npm run seed
@@ -111,24 +108,36 @@ The integration is fully built and gated behind environment variables:
 
 ---
 
-## Calendly setup
+## Scheduling
 
-1. Create a Calendly event type (e.g. "Bay Harbor Boat Rental").
-2. Copy the public URL (`https://calendly.com/yourhandle/boat-rental`).
-3. Either set `CALENDLY_URL` in Railway env vars **or** edit it from `/admin/settings` (database value overrides env).
-4. The booking page embeds the Calendly widget. When a customer picks a slot, the page captures the Calendly event URI via `postMessage` and stores it on the booking.
+The app ships with its own slot-based scheduler — no Calendly, Google Calendar, or third-party service. The booking flow:
+
+1. Customer picks a boat and a duration (2 / 4 / 6 / 8 hr).
+2. Customer picks a date and a start time.
+3. The server computes available start times from operating hours minus existing bookings on that boat (with a configurable buffer between rentals) minus admin-set blackout windows.
+4. The customer continues to the waiver and Stripe deposit.
+
+All scheduling settings live in `/admin/settings → Scheduling (Eastern Time)`:
+
+- **Operating hours** — open and close (defaults `08:00`–`20:00` ET)
+- **Slot increment** — start times advance by N minutes (default 30)
+- **Buffer between bookings** — turnaround time, in minutes (default 30)
+
+Per-boat blackouts (maintenance, owner use, weather days) live on each boat's edit page (`/admin/boats/[id] → Blackout dates`).
+
+All times are stored in UTC and rendered in **Eastern Time** (the business's timezone).
 
 ---
 
 ## Admin portal
 
 - Sign in: `/admin/login` with `ADMIN_EMAIL` / `ADMIN_PASSWORD`.
-- Dashboard: `/admin` — quick stats, Stripe/Calendly health, recent bookings.
+- Dashboard: `/admin` — quick stats, Stripe health, operating hours, recent bookings.
 - **Boats** `/admin/boats` — create, edit, delete. Edit page includes a photo manager (paste image URLs from any host/CDN; reorder with up/down; delete).
 - **Bookings** `/admin/bookings` — list + detail page with full waiver record (IP, user agent, signed name, version) and Stripe payment record.
 - **Waiver** `/admin/waiver` — edit and publish a new version (versioning preserved). View recent submissions.
 - **Reviews** `/admin/reviews` — add/edit/delete testimonials shown on the home page.
-- **Settings** `/admin/settings` — phone, email, address, social URLs, Calendly URL, deposit %, instant reservations toggle, payment methods text, hero copy.
+- **Settings** `/admin/settings` — phone, email, address, social URLs, deposit %, instant reservations toggle, payment methods text, hero copy, operating hours, slot increment, buffer between bookings.
 
 ### Adding more admin users
 
@@ -153,7 +162,7 @@ The MVP stores photo URLs (admin pastes a hosted URL — Cloudinary, Imgix, S3 +
 
 Prisma models (see `prisma/schema.prisma`):
 
-- `AdminUser` · `Boat` · `BoatPhoto` · `Booking` · `WaiverVersion` · `WaiverSubmission` · `Review` · `SiteSetting` · `StripePayment`
+- `AdminUser` · `Boat` · `BoatPhoto` · `BoatBlackout` · `Booking` · `WaiverVersion` · `WaiverSubmission` · `Review` · `SiteSetting` · `StripePayment`
 
 Booking statuses: `pending_waiver`, `waiver_completed`, `pending_payment`, `deposit_paid`, `cancelled`, `completed`.
 

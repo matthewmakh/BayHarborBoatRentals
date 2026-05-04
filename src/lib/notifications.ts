@@ -1,6 +1,7 @@
 import type { Booking, Boat, StripePayment, WaiverSubmission } from "@prisma/client";
 import { durationLabel, formatUSD } from "./pricing";
 import { notificationRecipient, sendEmail, wrapHtml } from "./email";
+import { formatBusinessDateTime } from "./timezone";
 
 export async function notifyBookingSubmitted(booking: Booking & { boat: Boat }) {
   const html = wrapHtml(
@@ -9,6 +10,7 @@ export async function notifyBookingSubmitted(booking: Booking & { boat: Boat }) 
      <ul>
        <li><strong>Customer:</strong> ${escape(booking.fullName)} (${escape(booking.email)}, ${escape(booking.phone)})</li>
        <li><strong>Boat:</strong> ${escape(booking.boat.name)}</li>
+       <li><strong>Scheduled:</strong> ${formatBusinessDateTime(booking.scheduledAt)} → ${formatBusinessDateTime(booking.endsAt)}</li>
        <li><strong>Duration:</strong> ${durationLabel(booking.duration)}</li>
        <li><strong>Rental price:</strong> ${formatUSD(booking.rentalPriceCents)}</li>
        <li><strong>Deposit (${booking.depositPercent}%):</strong> ${formatUSD(booking.depositCents)}</li>

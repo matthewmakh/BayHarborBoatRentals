@@ -8,13 +8,16 @@ export const SETTING_KEYS = {
   instagramUrl: "instagram_url",
   facebookUrl: "facebook_url",
   tiktokUrl: "tiktok_url",
-  calendlyUrl: "calendly_url",
   depositPercent: "deposit_percent",
   instantReservationsEnabled: "instant_reservations_enabled",
   paymentMethodsText: "payment_methods_text",
   licensedInsuredText: "licensed_insured_text",
   heroHeadline: "hero_headline",
   heroSubheadline: "hero_subheadline",
+  operatingHoursStart: "operating_hours_start",
+  operatingHoursEnd: "operating_hours_end",
+  slotIncrementMinutes: "slot_increment_minutes",
+  bufferMinutes: "buffer_minutes_between_bookings",
 } as const;
 
 export type SettingKey = (typeof SETTING_KEYS)[keyof typeof SETTING_KEYS];
@@ -27,13 +30,16 @@ export const SETTING_DEFAULTS: Record<string, string> = {
   [SETTING_KEYS.instagramUrl]: "",
   [SETTING_KEYS.facebookUrl]: "",
   [SETTING_KEYS.tiktokUrl]: "",
-  [SETTING_KEYS.calendlyUrl]: process.env.CALENDLY_URL ?? "",
   [SETTING_KEYS.depositPercent]: "30",
   [SETTING_KEYS.instantReservationsEnabled]: "true",
   [SETTING_KEYS.paymentMethodsText]: "We accept Visa, Mastercard, American Express, Discover, and Apple Pay through Stripe.",
   [SETTING_KEYS.licensedInsuredText]: "Fully licensed and insured for your peace of mind.",
   [SETTING_KEYS.heroHeadline]: "Cruise the Bay in Style",
   [SETTING_KEYS.heroSubheadline]: "Premium boat rentals from Bay Harbor Islands. Reserve in minutes — no membership required.",
+  [SETTING_KEYS.operatingHoursStart]: "08:00",
+  [SETTING_KEYS.operatingHoursEnd]: "20:00",
+  [SETTING_KEYS.slotIncrementMinutes]: "30",
+  [SETTING_KEYS.bufferMinutes]: "30",
 };
 
 export async function getAllSettings(): Promise<Record<string, string>> {

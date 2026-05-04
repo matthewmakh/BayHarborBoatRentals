@@ -3,13 +3,17 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { BoatForm } from "../BoatForm";
 import { PhotoManager } from "./PhotoManager";
+import { BlackoutManager } from "./BlackoutManager";
 
 export const dynamic = "force-dynamic";
 
 export default async function EditBoatPage({ params }: { params: { id: string } }) {
   const boat = await prisma.boat.findUnique({
     where: { id: params.id },
-    include: { photos: { orderBy: { sortOrder: "asc" } } },
+    include: {
+      photos: { orderBy: { sortOrder: "asc" } },
+      blackouts: { orderBy: { startsAt: "asc" } },
+    },
   });
   if (!boat) notFound();
 
@@ -41,6 +45,18 @@ export default async function EditBoatPage({ params }: { params: { id: string } 
       <PhotoManager
         boatId={boat.id}
         initialPhotos={boat.photos.map((p) => ({ id: p.id, url: p.url, alt: p.alt ?? "" }))}
+      />
+
+      <h2 className="mt-12 text-2xl font-serif text-navy-800">Blackout dates</h2>
+      <p className="text-sm text-navy-600">Block off times when this boat shouldn't be reservable (maintenance, owner use, weather).</p>
+      <BlackoutManager
+        boatId={boat.id}
+        initial={boat.blackouts.map((b) => ({
+          id: b.id,
+          startsAt: b.startsAt.toISOString(),
+          endsAt: b.endsAt.toISOString(),
+          reason: b.reason,
+        }))}
       />
     </div>
   );

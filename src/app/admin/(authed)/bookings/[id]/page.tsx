@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { durationLabel, formatUSD } from "@/lib/pricing";
+import { formatBusinessDateTime } from "@/lib/timezone";
 import { BookingStatusForm } from "./BookingStatusForm";
 
 export const dynamic = "force-dynamic";
@@ -26,8 +27,9 @@ export default async function BookingDetail({ params }: { params: { id: string }
         <Row label="Rental">{formatUSD(b.rentalPriceCents)}</Row>
         <Row label="Deposit">{formatUSD(b.depositCents)} ({b.depositPercent}%)</Row>
         <Row label="Status"><span className="badge">{b.status}</span></Row>
+        <Row label="Scheduled">{formatBusinessDateTime(b.scheduledAt)}</Row>
+        <Row label="Ends">{formatBusinessDateTime(b.endsAt)}</Row>
         <Row label="Notes">{b.notes || <span className="text-navy-400">—</span>}</Row>
-        <Row label="Calendly event">{b.calendlyEventUri || <span className="text-navy-400">—</span>}</Row>
       </div>
 
       <h2 className="mt-8 text-xl font-semibold text-navy-800">Waiver</h2>

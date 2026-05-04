@@ -11,13 +11,16 @@ type Initial = {
   instagramUrl: string;
   facebookUrl: string;
   tiktokUrl: string;
-  calendlyUrl: string;
   depositPercent: string;
   instantReservationsEnabled: boolean;
   paymentMethodsText: string;
   licensedInsuredText: string;
   heroHeadline: string;
   heroSubheadline: string;
+  operatingHoursStart: string;
+  operatingHoursEnd: string;
+  slotIncrementMinutes: string;
+  bufferMinutes: string;
 };
 
 export function SettingsForm({ initial }: { initial: Initial }) {
@@ -48,13 +51,16 @@ export function SettingsForm({ initial }: { initial: Initial }) {
           instagram_url: s.instagramUrl,
           facebook_url: s.facebookUrl,
           tiktok_url: s.tiktokUrl,
-          calendly_url: s.calendlyUrl,
           deposit_percent: s.depositPercent,
           instant_reservations_enabled: s.instantReservationsEnabled ? "true" : "false",
           payment_methods_text: s.paymentMethodsText,
           licensed_insured_text: s.licensedInsuredText,
           hero_headline: s.heroHeadline,
           hero_subheadline: s.heroSubheadline,
+          operating_hours_start: s.operatingHoursStart,
+          operating_hours_end: s.operatingHoursEnd,
+          slot_increment_minutes: s.slotIncrementMinutes,
+          buffer_minutes_between_bookings: s.bufferMinutes,
         }),
       });
       const data = await res.json();
@@ -85,7 +91,6 @@ export function SettingsForm({ initial }: { initial: Initial }) {
 
       <Section title="Reservations">
         <Field label="Default deposit %"><input type="number" min={0} max={100} className="input" value={s.depositPercent} onChange={(e) => set("depositPercent", e.target.value)} /></Field>
-        <Field label="Calendly URL"><input className="input" value={s.calendlyUrl} onChange={(e) => set("calendlyUrl", e.target.value)} placeholder="https://calendly.com/your/handle" /></Field>
         <Field label="Instant reservations" full>
           <label className="inline-flex items-center gap-2 text-sm">
             <input type="checkbox" checked={s.instantReservationsEnabled} onChange={(e) => set("instantReservationsEnabled", e.target.checked)} />
@@ -93,6 +98,13 @@ export function SettingsForm({ initial }: { initial: Initial }) {
           </label>
         </Field>
         <Field label="Payment methods text" full><textarea rows={2} className="input" value={s.paymentMethodsText} onChange={(e) => set("paymentMethodsText", e.target.value)} /></Field>
+      </Section>
+
+      <Section title="Scheduling (Eastern Time)">
+        <Field label="Operating hours – open"><input type="time" className="input" value={s.operatingHoursStart} onChange={(e) => set("operatingHoursStart", e.target.value)} /></Field>
+        <Field label="Operating hours – close"><input type="time" className="input" value={s.operatingHoursEnd} onChange={(e) => set("operatingHoursEnd", e.target.value)} /></Field>
+        <Field label="Slot increment (minutes)"><input type="number" min={5} max={240} step={5} className="input" value={s.slotIncrementMinutes} onChange={(e) => set("slotIncrementMinutes", e.target.value)} /></Field>
+        <Field label="Buffer between bookings (minutes)"><input type="number" min={0} max={240} step={5} className="input" value={s.bufferMinutes} onChange={(e) => set("bufferMinutes", e.target.value)} /></Field>
       </Section>
 
       <Section title="Social links (optional)">

@@ -11,7 +11,6 @@ const SETTING_DEFAULTS: Record<string, string> = {
   instagram_url: "",
   facebook_url: "",
   tiktok_url: "",
-  calendly_url: process.env.CALENDLY_URL ?? "",
   deposit_percent: "30",
   instant_reservations_enabled: "true",
   payment_methods_text:
@@ -20,6 +19,10 @@ const SETTING_DEFAULTS: Record<string, string> = {
   hero_headline: "Cruise the Bay in Style",
   hero_subheadline:
     "Premium boat rentals from Bay Harbor Islands. Reserve in minutes — no membership required.",
+  operating_hours_start: "08:00",
+  operating_hours_end: "20:00",
+  slot_increment_minutes: "30",
+  buffer_minutes_between_bookings: "30",
 };
 
 const WAIVER_BODY = `BAY HARBOR BOAT RENTALS — RENTAL & LIABILITY WAIVER

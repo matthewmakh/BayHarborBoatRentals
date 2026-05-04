@@ -45,6 +45,21 @@ model Boat {
 
   photos                BoatPhoto[]
   bookings              Booking[]
+  blackouts             BoatBlackout[]
+}
+
+model BoatBlackout {
+  id        String   @id @default(cuid())
+  boatId    String
+  startsAt  DateTime
+  endsAt    DateTime
+  reason    String?
+  createdAt DateTime @default(now())
+
+  boat      Boat     @relation(fields: [boatId], references: [id], onDelete: Cascade)
+
+  @@index([boatId])
+  @@index([startsAt])
 }
 
 model BoatPhoto {
@@ -90,9 +105,8 @@ model Booking {
   depositCents      Int
   currency          String         @default("usd")
   status            BookingStatus  @default(pending_waiver)
-  calendlyEventUri  String?
-  calendlyInviteeUri String?
-  scheduledAt       DateTime?
+  scheduledAt       DateTime
+  endsAt            DateTime
   createdAt         DateTime       @default(now())
   updatedAt         DateTime       @updatedAt
 
@@ -102,6 +116,7 @@ model Booking {
 
   @@index([boatId])
   @@index([status])
+  @@index([scheduledAt])
 }
 
 model WaiverVersion {

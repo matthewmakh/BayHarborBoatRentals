@@ -18,13 +18,16 @@ export default async function AdminSettingsPage() {
           instagramUrl: settings[SETTING_KEYS.instagramUrl],
           facebookUrl: settings[SETTING_KEYS.facebookUrl],
           tiktokUrl: settings[SETTING_KEYS.tiktokUrl],
-          calendlyUrl: settings[SETTING_KEYS.calendlyUrl],
           depositPercent: settings[SETTING_KEYS.depositPercent],
           instantReservationsEnabled: settings[SETTING_KEYS.instantReservationsEnabled] === "true",
           paymentMethodsText: settings[SETTING_KEYS.paymentMethodsText],
           licensedInsuredText: settings[SETTING_KEYS.licensedInsuredText],
           heroHeadline: settings[SETTING_KEYS.heroHeadline],
           heroSubheadline: settings[SETTING_KEYS.heroSubheadline],
+          operatingHoursStart: settings[SETTING_KEYS.operatingHoursStart],
+          operatingHoursEnd: settings[SETTING_KEYS.operatingHoursEnd],
+          slotIncrementMinutes: settings[SETTING_KEYS.slotIncrementMinutes],
+          bufferMinutes: settings[SETTING_KEYS.bufferMinutes],
         }}
       />
     </div>

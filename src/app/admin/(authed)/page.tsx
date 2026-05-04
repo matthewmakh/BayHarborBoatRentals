@@ -19,8 +19,8 @@ export default async function AdminDashboard() {
   ]);
 
   const stripeReady = isStripeConfigured();
-  const calendlyReady = Boolean(settings[SETTING_KEYS.calendlyUrl]);
   const instant = settings[SETTING_KEYS.instantReservationsEnabled] === "true";
+  const operatingHours = `${settings[SETTING_KEYS.operatingHoursStart]}–${settings[SETTING_KEYS.operatingHoursEnd]} ET`;
 
   return (
     <div className="container-x py-10">
@@ -36,7 +36,7 @@ export default async function AdminDashboard() {
 
       <div className="mt-8 grid gap-4 lg:grid-cols-3">
         <ConfigCard title="Stripe" ok={stripeReady} okText="Connected" warnText="Not configured — see README" />
-        <ConfigCard title="Calendly" ok={calendlyReady} okText="URL set" warnText="No URL — set in Settings" />
+        <ConfigCard title="Operating hours" ok okText={operatingHours} warnText="" />
         <ConfigCard
           title="Instant reservations"
           ok={instant}

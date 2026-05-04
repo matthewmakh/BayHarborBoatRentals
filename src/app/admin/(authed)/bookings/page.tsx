@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { durationLabel, formatUSD } from "@/lib/pricing";
+import { formatBusinessDateTime } from "@/lib/timezone";
 
 export const dynamic = "force-dynamic";
 
@@ -18,7 +19,8 @@ export default async function AdminBookings() {
         <table className="w-full text-sm">
           <thead className="bg-navy-50/60 text-navy-700">
             <tr>
-              <th className="text-left px-4 py-2 font-medium">When</th>
+              <th className="text-left px-4 py-2 font-medium">Created</th>
+              <th className="text-left px-4 py-2 font-medium">Scheduled</th>
               <th className="text-left px-4 py-2 font-medium">Customer</th>
               <th className="text-left px-4 py-2 font-medium">Boat</th>
               <th className="text-left px-4 py-2 font-medium">Duration</th>
@@ -33,7 +35,8 @@ export default async function AdminBookings() {
           <tbody>
             {bookings.map((b) => (
               <tr key={b.id} className="border-t border-navy-100">
-                <td className="px-4 py-3 text-navy-600">{b.createdAt.toLocaleString()}</td>
+                <td className="px-4 py-3 text-navy-600 text-xs">{b.createdAt.toLocaleDateString()}</td>
+                <td className="px-4 py-3 text-navy-700 text-xs">{formatBusinessDateTime(b.scheduledAt)}</td>
                 <td className="px-4 py-3">{b.fullName}<div className="text-xs text-navy-500">{b.email}<br/>{b.phone}</div></td>
                 <td className="px-4 py-3">{b.boat.name}</td>
                 <td className="px-4 py-3">{durationLabel(b.duration)}</td>
@@ -53,7 +56,7 @@ export default async function AdminBookings() {
               </tr>
             ))}
             {bookings.length === 0 && (
-              <tr><td colSpan={10} className="px-4 py-6 text-navy-500">No bookings yet.</td></tr>
+              <tr><td colSpan={11} className="px-4 py-6 text-navy-500">No bookings yet.</td></tr>
             )}
           </tbody>
         </table>
