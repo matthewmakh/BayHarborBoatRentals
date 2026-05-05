@@ -1,4 +1,4 @@
-import type { Booking, Boat, StripePayment, WaiverSubmission } from "@prisma/client";
+import type { Booking, Boat, Lead, StripePayment, WaiverSubmission } from "@prisma/client";
 import { durationLabel, formatUSD } from "./pricing";
 import { notificationRecipient, sendEmail, wrapHtml } from "./email";
 import { formatBusinessDateTime } from "./timezone";
@@ -56,6 +56,34 @@ export async function notifyDepositPaid(
      </ul>`
   );
   await sendEmail({ to: notificationRecipient(), subject: `Deposit paid — ${booking.boat.name}`, html });
+}
+
+export async function notifyLeadCaptured(lead: Lead) {
+  const sourceLabel: Record<Lead["source"], string> = {
+    booking_form: "Booking page",
+    contact_section: "Contact section",
+    callback_widget: "Callback widget",
+  };
+  let boatLine = "";
+  if (lead.boatId) {
+    const { prisma } = await import("./prisma");
+    const boat = await prisma.boat.findUnique({ where: { id: lead.boatId }, select: { name: true } });
+    if (boat) boatLine = `<li><strong>Looking at:</strong> ${escape(boat.name)}</li>`;
+  }
+  const html = wrapHtml(
+    "New lead captured",
+    `<p>Someone gave us their contact info from the <strong>${sourceLabel[lead.source]}</strong>. Worth a callback.</p>
+     <ul>
+       <li><strong>Name:</strong> ${escape(lead.fullName || "—")}</li>
+       <li><strong>Phone:</strong> ${escape(lead.phone || "—")}</li>
+       ${lead.email ? `<li><strong>Email:</strong> ${escape(lead.email)}</li>` : ""}
+       ${boatLine}
+       ${lead.notes ? `<li><strong>Notes:</strong> ${escape(lead.notes)}</li>` : ""}
+       <li><strong>Captured at:</strong> ${lead.createdAt.toISOString()}</li>
+       <li><strong>Lead ID:</strong> ${lead.id}</li>
+     </ul>`
+  );
+  await sendEmail({ to: notificationRecipient(), subject: `New lead — ${lead.fullName || "anonymous"}`, html });
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

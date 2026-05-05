@@ -48,16 +48,21 @@ export default async function BookPage({ params }: { params: { slug: string } })
 
   return (
     <PublicShell>
-      <section className="container-x py-10 max-w-3xl">
-        <h1 className="text-3xl sm:text-4xl font-serif text-navy-800">Reserve {boat.name}</h1>
-        <p className="mt-2 text-navy-700">
-          Pick a duration, date, and start time, then sign the waiver and pay your {pct}% deposit to lock it in.
-        </p>
+      <section className="container-x py-10">
+        <div className="mb-6 max-w-3xl">
+          <h1 className="text-3xl sm:text-4xl font-serif text-navy-800">Reserve {boat.name}</h1>
+          <p className="mt-2 text-navy-700">
+            Pick a duration, share a few details, choose a time. {pct}% deposit locks it in.
+          </p>
+        </div>
         <BookingForm
           boat={{
             id: boat.id,
             slug: boat.slug,
             name: boat.name,
+            year: boat.year,
+            lengthFeet: boat.lengthFeet,
+            maxCapacity: boat.maxCapacity,
             price2hCents: boat.price2hCents,
             price4hCents: boat.price4hCents,
             price6hCents: boat.price6hCents,

@@ -6,6 +6,7 @@ import { getInstantReservationsEnabled } from "@/lib/settings";
 import { notifyBookingSubmitted, notifyCustomerBookingReceived } from "@/lib/notifications";
 import { isSlotAvailable } from "@/lib/availability";
 import { dateInBusinessTz } from "@/lib/timezone";
+import { getLeadId } from "@/lib/leadCookie";
 
 const Schema = z.object({
   boatId: z.string().min(1),
@@ -72,6 +73,14 @@ export async function POST(req: Request) {
     },
     include: { boat: true },
   });
+
+  // Link this booking to the lead row, if the visitor had one.
+  const leadId = getLeadId();
+  if (leadId) {
+    await prisma.lead
+      .update({ where: { id: leadId }, data: { status: "converted", bookingId: booking.id } })
+      .catch(() => undefined);
+  }
 
   notifyBookingSubmitted(booking).catch(() => undefined);
   notifyCustomerBookingReceived(booking).catch(() => undefined);

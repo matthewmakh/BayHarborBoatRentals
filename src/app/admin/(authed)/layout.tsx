@@ -21,6 +21,7 @@ function AdminNav({ adminEmail }: { adminEmail: string }) {
     { href: "/admin", label: "Dashboard" },
     { href: "/admin/boats", label: "Boats" },
     { href: "/admin/bookings", label: "Bookings" },
+    { href: "/admin/leads", label: "Leads" },
     { href: "/admin/waiver", label: "Waiver" },
     { href: "/admin/reviews", label: "Reviews" },
     { href: "/admin/settings", label: "Settings" },

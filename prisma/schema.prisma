@@ -46,6 +46,7 @@ model Boat {
   photos                BoatPhoto[]
   bookings              Booking[]
   blackouts             BoatBlackout[]
+  leads                 Lead[]
 }
 
 model BoatBlackout {
@@ -113,6 +114,7 @@ model Booking {
   boat              Boat           @relation(fields: [boatId], references: [id])
   waiver            WaiverSubmission?
   payment           StripePayment?
+  lead              Lead?
 
   @@index([boatId])
   @@index([status])
@@ -171,6 +173,43 @@ enum StripePaymentStatus {
   succeeded
   failed
   refunded
+}
+
+enum LeadStatus {
+  open
+  converted
+  stale
+}
+
+enum LeadSource {
+  booking_form
+  contact_section
+  callback_widget
+}
+
+model Lead {
+  id          String     @id @default(cuid())
+  fullName    String?
+  phone       String?
+  email       String?
+  notes       String?    @db.Text
+  boatId      String?
+  source      LeadSource
+  status      LeadStatus @default(open)
+  bookingId   String?    @unique
+  ipAddress   String?
+  userAgent   String?    @db.Text
+  notifiedAt  DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  boat        Boat?      @relation(fields: [boatId], references: [id], onDelete: SetNull)
+  booking     Booking?   @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+
+  @@index([phone])
+  @@index([status])
+  @@index([createdAt])
+  @@index([boatId])
 }
 
 model StripePayment {

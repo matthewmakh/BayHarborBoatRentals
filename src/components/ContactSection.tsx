@@ -1,3 +1,5 @@
+import { ContactCallbackForm } from "./ContactCallbackForm";
+
 type Props = {
   phone: string;
   email: string;
@@ -35,14 +37,17 @@ export function ContactSection({ phone, email, address }: Props) {
             <a href={`mailto:${email}`} className="btn-secondary">Email us</a>
           </div>
         </div>
-        <div className="overflow-hidden rounded-2xl border border-navy-100 shadow-card">
-          <iframe
-            title="Map of Bay Harbor Boat Rentals"
-            src={`https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`}
-            className="h-[360px] w-full"
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-          />
+        <div className="grid gap-6">
+          <ContactCallbackForm />
+          <div className="overflow-hidden rounded-2xl border border-navy-100 shadow-card">
+            <iframe
+              title="Map of Bay Harbor Boat Rentals"
+              src={`https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`}
+              className="h-[280px] w-full"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+          </div>
         </div>
       </div>
     </section>
