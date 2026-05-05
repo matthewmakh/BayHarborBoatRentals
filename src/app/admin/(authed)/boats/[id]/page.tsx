@@ -41,7 +41,7 @@ export default async function EditBoatPage({ params }: { params: { id: string } 
       />
 
       <h2 className="mt-12 text-2xl font-serif text-navy-800">Photos</h2>
-      <p className="text-sm text-navy-600">Paste image URLs from your hosting/CDN. Drag-free reordering with the up/down buttons.</p>
+      <p className="text-sm text-navy-600">Upload photos straight from your camera roll. Reorder with the up/down buttons.</p>
       <PhotoManager
         boatId={boat.id}
         initialPhotos={boat.photos.map((p) => ({ id: p.id, url: p.url, alt: p.alt ?? "" }))}

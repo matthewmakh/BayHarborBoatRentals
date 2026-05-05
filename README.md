@@ -54,6 +54,8 @@ All variables are documented in `.env.example`. Required for production:
 | `STRIPE_SECRET_KEY` | Stripe secret key (sk_…) |
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe publishable key (pk_…) |
 | `STRIPE_WEBHOOK_SECRET` | Stripe CLI / dashboard webhook secret (whsec_…) |
+| `CLOUDINARY_CLOUD_NAME` / `_API_KEY` / `_API_SECRET` | Cloudinary credentials for boat photo uploads |
+| `CLOUDINARY_UPLOAD_FOLDER` | Optional — Cloudinary folder name (default `bay-harbor-boats`) |
 | `NOTIFICATION_EMAIL` | Where booking/waiver/payment notifications go (default `daniel@bayharborboatrentals.com`) |
 | `EMAIL_PROVIDER` | `resend` \| `sendgrid` \| `smtp` \| `console` (no-op log for dev) |
 | `EMAIL_FROM` | "Bay Harbor Boat Rentals \<noreply@…\>" |
@@ -133,7 +135,7 @@ All times are stored in UTC and rendered in **Eastern Time** (the business's tim
 
 - Sign in: `/admin/login` with `ADMIN_EMAIL` / `ADMIN_PASSWORD`.
 - Dashboard: `/admin` — quick stats, Stripe health, operating hours, recent bookings.
-- **Boats** `/admin/boats` — create, edit, delete. Edit page includes a photo manager (paste image URLs from any host/CDN; reorder with up/down; delete).
+- **Boats** `/admin/boats` — create, edit, delete. Edit page includes a photo manager that uploads from your camera roll directly to Cloudinary (CDN-served, auto-optimized) with reorder/delete.
 - **Bookings** `/admin/bookings` — list + detail page with full waiver record (IP, user agent, signed name, version) and Stripe payment record.
 - **Waiver** `/admin/waiver` — edit and publish a new version (versioning preserved). View recent submissions.
 - **Reviews** `/admin/reviews` — add/edit/delete testimonials shown on the home page.
@@ -152,9 +154,32 @@ await p.adminUser.create({ data: { email: "...", passwordHash: await bcrypt.hash
 
 ---
 
-## Photo storage
+## Photo storage (Cloudinary)
 
-The MVP stores photo URLs (admin pastes a hosted URL — Cloudinary, Imgix, S3 + CloudFront, Bunny CDN, or even Unsplash for placeholders). Direct file uploads were intentionally left out of v1 to avoid coupling to a specific blob provider — drop in S3/Cloudinary later by extending `/api/admin/boats/[id]/photos`.
+Boat photos are uploaded directly from the admin's device (camera roll on mobile, drag-and-drop on desktop) to **Cloudinary**, which serves them via CDN with automatic optimization (HEIC → JPG, format negotiation, resizing).
+
+### One-time setup
+
+1. Create a free account at [cloudinary.com](https://cloudinary.com). The free tier covers 25 GB storage and 25 GB/month bandwidth — plenty for a boat rental site.
+2. From the dashboard, copy three values from **Account Details**:
+   - `Cloud name`
+   - `API Key`
+   - `API Secret`
+3. Set these env vars on Railway:
+   ```
+   CLOUDINARY_CLOUD_NAME=...
+   CLOUDINARY_API_KEY=...
+   CLOUDINARY_API_SECRET=...
+   CLOUDINARY_UPLOAD_FOLDER=bay-harbor-boats   # optional, defaults to this
+   ```
+4. Redeploy. The upload zone in `/admin/boats/<id>` becomes active.
+
+### How it works
+
+- Browser asks `POST /api/admin/upload/sign` for a signed timestamp/signature.
+- Browser uploads the file directly to Cloudinary using those signed params (file never goes through your server).
+- Cloudinary returns a permanent `secure_url`, which we store in `BoatPhoto.url`.
+- Existing photos (URLs added before Cloudinary was configured) keep working — we don't validate that URLs are Cloudinary-hosted, just that they're URLs.
 
 ---
 
