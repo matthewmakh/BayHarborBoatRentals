@@ -40,6 +40,13 @@ model Boat {
   // Optional per-boat deposit % override (0-100). Falls back to global.
   depositPercentOverride Int?
   sortOrder             Int          @default(0)
+
+  // Internal-only ownership / brokering info (never shown to public).
+  ownerName             String?
+  ownerEmail            String?
+  ownerPhone            String?
+  ownerNotes            String?      @db.Text
+
   createdAt             DateTime     @default(now())
   updatedAt             DateTime     @updatedAt
 

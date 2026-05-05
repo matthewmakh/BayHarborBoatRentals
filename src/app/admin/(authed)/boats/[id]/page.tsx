@@ -37,6 +37,10 @@ export default async function EditBoatPage({ params }: { params: { id: string } 
           price8hCents: boat.price8hCents,
           depositPercentOverride: boat.depositPercentOverride,
           sortOrder: boat.sortOrder,
+          ownerName: boat.ownerName,
+          ownerEmail: boat.ownerEmail,
+          ownerPhone: boat.ownerPhone,
+          ownerNotes: boat.ownerNotes,
         }}
       />
 

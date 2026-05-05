@@ -17,6 +17,10 @@ const Schema = z.object({
   price8hCents: z.number().int().min(0),
   depositPercentOverride: z.number().int().min(0).max(100).nullable().optional(),
   sortOrder: z.number().int().default(0),
+  ownerName: z.string().max(160).nullable().optional(),
+  ownerEmail: z.string().max(200).email().or(z.literal("")).nullable().optional(),
+  ownerPhone: z.string().max(40).nullable().optional(),
+  ownerNotes: z.string().max(4000).nullable().optional(),
 });
 
 export async function POST(req: Request) {

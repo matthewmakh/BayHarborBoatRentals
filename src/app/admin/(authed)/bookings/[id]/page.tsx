@@ -32,6 +32,8 @@ export default async function BookingDetail({ params }: { params: { id: string }
         <Row label="Notes">{b.notes || <span className="text-navy-400">—</span>}</Row>
       </div>
 
+      <BoatOwnerCard boat={b.boat} />
+
       <h2 className="mt-8 text-xl font-semibold text-navy-800">Waiver</h2>
       {b.waiver ? (
         <div className="mt-2 card p-6 grid gap-2 text-sm">
@@ -70,6 +72,53 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
     <div className="grid grid-cols-[140px_1fr] gap-3">
       <div className="text-xs uppercase tracking-wide text-navy-500">{label}</div>
       <div className="text-navy-800">{children}</div>
+    </div>
+  );
+}
+
+function BoatOwnerCard({
+  boat,
+}: {
+  boat: {
+    name: string;
+    ownerName: string | null;
+    ownerEmail: string | null;
+    ownerPhone: string | null;
+    ownerNotes: string | null;
+  };
+}) {
+  const has = boat.ownerName || boat.ownerEmail || boat.ownerPhone || boat.ownerNotes;
+  if (!has) return null;
+  const tel = boat.ownerPhone?.replace(/\D/g, "") ?? "";
+  return (
+    <div className="mt-8">
+      <div className="flex items-baseline justify-between gap-3 flex-wrap">
+        <h2 className="text-xl font-semibold text-navy-800">Boat owner / broker</h2>
+        <span className="badge bg-amber-50 text-amber-700 border-amber-200">Admin-only</span>
+      </div>
+      <div className="mt-2 card p-6 grid gap-2 text-sm bg-amber-50/40 border-amber-100">
+        <Row label="Boat">{boat.name}</Row>
+        {boat.ownerName && <Row label="Owner name">{boat.ownerName}</Row>}
+        {boat.ownerPhone && (
+          <Row label="Owner phone">
+            <a href={`tel:${tel}`} className="text-navy-700 hover:text-navy-900 underline-offset-4 hover:underline">
+              {boat.ownerPhone}
+            </a>
+          </Row>
+        )}
+        {boat.ownerEmail && (
+          <Row label="Owner email">
+            <a href={`mailto:${boat.ownerEmail}`} className="text-navy-700 hover:text-navy-900 underline-offset-4 hover:underline">
+              {boat.ownerEmail}
+            </a>
+          </Row>
+        )}
+        {boat.ownerNotes && (
+          <Row label="Internal notes">
+            <span className="whitespace-pre-line">{boat.ownerNotes}</span>
+          </Row>
+        )}
+      </div>
     </div>
   );
 }

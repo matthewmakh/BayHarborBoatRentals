@@ -8,6 +8,20 @@ import { getAllSettings, SETTING_KEYS } from "./settings";
 // Admin notifications (operator) — sent to NOTIFICATION_EMAIL
 // ─────────────────────────────────────────────────────────────────────────────
 
+function ownerBlock(boat: Boat): string {
+  const has = boat.ownerName || boat.ownerEmail || boat.ownerPhone || boat.ownerNotes;
+  if (!has) return "";
+  const lines: string[] = [];
+  if (boat.ownerName) lines.push(`<li><strong>Owner name:</strong> ${escape(boat.ownerName)}</li>`);
+  if (boat.ownerPhone) lines.push(`<li><strong>Owner phone:</strong> ${escape(boat.ownerPhone)}</li>`);
+  if (boat.ownerEmail) lines.push(`<li><strong>Owner email:</strong> ${escape(boat.ownerEmail)}</li>`);
+  if (boat.ownerNotes) lines.push(`<li><strong>Internal notes:</strong> ${escape(boat.ownerNotes)}</li>`);
+  return `<div style="margin-top:18px;padding:12px 14px;border:1px solid #fcd34d;background:#fffbeb;border-radius:8px">
+    <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:#92400e;margin-bottom:6px">Boat owner / broker (admin-only)</div>
+    <ul style="margin:0;padding-left:18px;color:#0a2236">${lines.join("")}</ul>
+  </div>`;
+}
+
 export async function notifyBookingSubmitted(booking: Booking & { boat: Boat }) {
   const html = wrapHtml(
     "New booking submitted",
@@ -21,7 +35,8 @@ export async function notifyBookingSubmitted(booking: Booking & { boat: Boat }) 
        <li><strong>Deposit (${booking.depositPercent}%):</strong> ${formatUSD(booking.depositCents)}</li>
        ${booking.notes ? `<li><strong>Notes:</strong> ${escape(booking.notes)}</li>` : ""}
        <li><strong>Booking ID:</strong> ${booking.id}</li>
-     </ul>`
+     </ul>
+     ${ownerBlock(booking.boat)}`
   );
   await sendEmail({ to: notificationRecipient(), subject: `New booking — ${booking.boat.name}`, html });
 }
@@ -35,7 +50,8 @@ export async function notifyWaiverCompleted(booking: Booking & { boat: Boat }, w
        <li><strong>Duration:</strong> ${durationLabel(booking.duration)}</li>
        <li><strong>Signed at:</strong> ${waiver.signedAt.toISOString()}</li>
        <li><strong>IP:</strong> ${escape(waiver.ipAddress || "n/a")}</li>
-     </ul>`
+     </ul>
+     ${ownerBlock(booking.boat)}`
   );
   await sendEmail({ to: notificationRecipient(), subject: `Waiver signed — ${booking.boat.name}`, html });
 }
@@ -53,7 +69,8 @@ export async function notifyDepositPaid(
        <li><strong>Amount paid:</strong> ${formatUSD(payment.amountCents)} ${payment.currency.toUpperCase()}</li>
        <li><strong>Status:</strong> ${payment.status}</li>
        <li><strong>Payment intent:</strong> ${escape(payment.paymentIntentId || "n/a")}</li>
-     </ul>`
+     </ul>
+     ${ownerBlock(booking.boat)}`
   );
   await sendEmail({ to: notificationRecipient(), subject: `Deposit paid — ${booking.boat.name}`, html });
 }
