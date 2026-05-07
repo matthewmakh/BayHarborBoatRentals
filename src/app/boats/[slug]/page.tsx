@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PublicShell } from "@/components/PublicShell";
+import { BoatGallery } from "@/components/BoatGallery";
 import { prisma } from "@/lib/prisma";
 import { formatUSD } from "@/lib/pricing";
 import { getDepositPercent, getInstantReservationsEnabled, getSetting, SETTING_KEYS } from "@/lib/settings";
@@ -40,7 +41,7 @@ export default async function BoatDetail({ params }: { params: { slug: string } 
       <section className="container-x py-10">
         <Link href="/boats" className="text-sm text-navy-600 hover:text-navy-700">← All boats</Link>
         <div className="mt-4 grid gap-8 lg:grid-cols-2">
-          <Gallery photos={boat.photos} altBase={boat.name} />
+          <BoatGallery photos={boat.photos} altBase={boat.name} />
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-navy-500">{boat.year} · {boat.lengthFeet}ft · up to {boat.maxCapacity}</p>
             <h1 className="mt-2 text-4xl font-serif text-navy-800">{boat.name}</h1>
@@ -80,26 +81,3 @@ export default async function BoatDetail({ params }: { params: { slug: string } 
   );
 }
 
-function Gallery({ photos, altBase }: { photos: { id: string; url: string; alt: string | null }[]; altBase: string }) {
-  if (photos.length === 0) {
-    return <div className="aspect-[4/3] rounded-2xl bg-navy-50 flex items-center justify-center text-navy-400">No photos</div>;
-  }
-  return (
-    <div className="grid gap-3">
-      <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-navy-50">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={photos[0].url} alt={photos[0].alt || altBase} className="h-full w-full object-cover" />
-      </div>
-      {photos.length > 1 && (
-        <div className="grid grid-cols-3 gap-3">
-          {photos.slice(1, 4).map((p) => (
-            <div key={p.id} className="aspect-[4/3] overflow-hidden rounded-xl bg-navy-50">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={p.url} alt={p.alt || altBase} className="h-full w-full object-cover" />
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
