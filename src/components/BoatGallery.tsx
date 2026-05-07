@@ -67,7 +67,7 @@ export function BoatGallery({ photos, altBase }: { photos: Photo[]; altBase: str
               className="snap-center shrink-0 w-full"
               style={{ scrollSnapAlign: "center" }}
             >
-              <div className="aspect-[4/3]">
+              <div className="aspect-[16/10] sm:aspect-[3/2] lg:aspect-[4/3]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={p.url}

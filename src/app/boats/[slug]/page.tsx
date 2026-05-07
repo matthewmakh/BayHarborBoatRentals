@@ -38,13 +38,13 @@ export default async function BoatDetail({ params }: { params: { slug: string } 
 
   return (
     <PublicShell>
-      <section className="container-x py-10">
+      <section className="container-x py-4 sm:py-8">
         <Link href="/boats" className="text-sm text-navy-600 hover:text-navy-700">← All boats</Link>
-        <div className="mt-4 grid gap-8 lg:grid-cols-2">
+        <div className="mt-3 grid gap-6 lg:gap-8 lg:grid-cols-2">
           <BoatGallery photos={boat.photos} altBase={boat.name} />
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-navy-500">{boat.year} · {boat.lengthFeet}ft · up to {boat.maxCapacity}</p>
-            <h1 className="mt-2 text-4xl font-serif text-navy-800">{boat.name}</h1>
+            <h1 className="mt-2 text-3xl sm:text-4xl font-serif text-navy-800">{boat.name}</h1>
             <p className="mt-3 text-navy-700/90 leading-relaxed whitespace-pre-line">{boat.description}</p>
 
             <div className="mt-6">
