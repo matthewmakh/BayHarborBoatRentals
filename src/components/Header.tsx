@@ -10,6 +10,7 @@ export async function Header() {
         <Brand />
         <nav className="hidden md:flex items-center gap-7 text-sm font-medium text-navy-800">
           <Link href="/boats" className="hover:text-navy-600">Boats</Link>
+          <Link href="/about" className="hover:text-navy-600">About</Link>
           <Link href="/#reviews" className="hover:text-navy-600">Reviews</Link>
           <Link href="/#contact" className="hover:text-navy-600">Contact</Link>
           <Link href="/waiver" className="hover:text-navy-600">Waiver</Link>

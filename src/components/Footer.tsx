@@ -10,6 +10,7 @@ export async function Footer() {
   const ig = s[SETTING_KEYS.instagramUrl];
   const fb = s[SETTING_KEYS.facebookUrl];
   const tt = s[SETTING_KEYS.tiktokUrl];
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
 
   return (
     <footer className="mt-auto bg-navy-900 text-white">
@@ -22,7 +23,16 @@ export async function Footer() {
         </div>
         <div className="text-sm">
           <h3 className="font-semibold text-white mb-2">Visit us</h3>
-          <p className="text-white/80">{address}</p>
+          <p>
+            <a
+              href={mapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white/80 hover:text-white underline-offset-4 hover:underline"
+            >
+              {address}
+            </a>
+          </p>
           <p className="text-white/80 mt-2">
             <a href={`tel:${phone.replace(/\D/g, "")}`} className="hover:text-white underline-offset-4 hover:underline">{phone}</a>
           </p>
@@ -34,10 +44,10 @@ export async function Footer() {
           <h3 className="font-semibold text-white mb-2">Explore</h3>
           <ul className="space-y-1 text-white/80">
             <li><Link href="/boats" className="hover:text-white">Our Boats</Link></li>
+            <li><Link href="/about" className="hover:text-white">About</Link></li>
             <li><Link href="/#reviews" className="hover:text-white">Reviews</Link></li>
             <li><Link href="/waiver" className="hover:text-white">Waiver</Link></li>
             <li><Link href="/#contact" className="hover:text-white">Contact</Link></li>
-            <li><Link href="/admin" className="hover:text-white">Admin</Link></li>
           </ul>
           {(ig || fb || tt) && (
             <div className="mt-4 flex gap-4 text-white/80">
